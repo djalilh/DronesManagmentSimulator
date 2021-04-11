@@ -141,35 +141,7 @@ namespace Client
             CordenatorTask = Task.Run(async () => {
                 for(; ; )
                 {
-                    Positions.OrderByDescending(p => p.Position.ThreatLevel).ToList().ForEach((position) => {
-                        if(position.ActiveDrone == null && Drones.Where(d => d.State == DroneState.Waiting).Count() != 0)
-                        {
-                            var drone = Drones.Where(d => d.State == DroneState.Waiting).FirstOrDefault();
-                            drone.State = DroneState.OnGarde;
-                            position.ActiveDrone = drone;
-                        }
-                        else if(position.ActiveDrone != null && position.ActiveDrone.Battery > 10)
-                        {
-                            position.ActiveDrone.Battery -= (int) Math.Round(position.Position.ThreatLevel*0.1);
-                        }
-                        else if (position.ActiveDrone != null && position.ActiveDrone.Battery <= 10)
-                        {
-                            var drone = position.ActiveDrone;
-                            drone.State = DroneState.Recharging;
-                            position.ActiveDrone = null;
-
-                            var found = Positions.Where(p => p.ActiveDrone != null && p.Position.ThreatLevel < position.Position.ThreatLevel)
-                                                    .OrderBy(p => p.Position.ThreatLevel).FirstOrDefault();
-                            if(found != null)
-                            {
-                                var newDrone = found.ActiveDrone;
-                                found.ActiveDrone = null;
-                                position.ActiveDrone = newDrone;
-                            }
-                            
-                        }
-                    });
-
+                    Cordinator();
                     RefreshViews();
                     await Task.Delay(TimeSpan.FromSeconds(5));
                 }
@@ -186,11 +158,45 @@ namespace Client
                             drone.State = DroneState.Waiting;
                     });
                     RefreshViews();
-                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    await Task.Delay(TimeSpan.FromMilliseconds(100));
                 }
             });
 
             
+        }
+
+        private void Cordinator()
+        {
+            Positions.OrderByDescending(p => p.Position.ThreatLevel).ToList().ForEach((position) => {
+
+                if (position.ActiveDrone != null && position.ActiveDrone.Battery <= 10)
+                {
+                    var drone = position.ActiveDrone;
+                    drone.State = DroneState.Recharging;
+                    position.ActiveDrone = null;
+                }
+                else if (position.ActiveDrone == null && Drones.Where(d => d.State == DroneState.Waiting).Count() != 0)
+                {
+                    var drone = Drones.Where(d => d.State == DroneState.Waiting).FirstOrDefault();
+                    drone.State = DroneState.OnGarde;
+                    position.ActiveDrone = drone;
+                }
+                else if (position.ActiveDrone == null && Drones.Where(d => d.State == DroneState.Waiting).Count() == 0)
+                {
+                    var found = Positions.Where(p => p.ActiveDrone != null && p.Position.ThreatLevel < position.Position.ThreatLevel)
+                                           .OrderBy(p => p.Position.ThreatLevel).FirstOrDefault();
+                    if (found != null)
+                    {
+                        var newDrone = found.ActiveDrone;
+                        found.ActiveDrone = null;
+                        position.ActiveDrone = newDrone;
+                    }
+                }
+                else if (position.ActiveDrone != null && position.ActiveDrone.Battery > 10)
+                {
+                    position.ActiveDrone.Battery -= (int)Math.Round(position.Position.ThreatLevel * 0.1);
+                }
+            });
         }
 
         #endregion
