@@ -1,0 +1,25 @@
+﻿<Window x:Class="Client.Views.NewSimulationView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Client.Views"
+        mc:Ignorable="d"
+        Title="Nouveau Simulation" Height="250" Width="400"
+        WindowStartupLocation="CenterScreen">
+    <StackPanel>
+        <StackPanel Margin="10">
+            <TextBlock Text="Positions :" FontSize="18"/>
+            <ComboBox ItemsSource="{Binding OneToTenList}" SelectedItem="{Binding Positions}" />
+        </StackPanel>
+        <StackPanel Margin="10">
+            <TextBlock Text="Drones :" FontSize="18" />
+            <ComboBox ItemsSource="{Binding OneToTenList}" SelectedItem="{Binding Drones}" />
+        </StackPanel>
+        <StackPanel Margin="10 20 10 0">
+            <Button Command="{Binding StartCommand}">
+                <TextBlock Text="Start" FontSize="18" />
+            </Button>
+        </StackPanel>
+    </StackPanel>
+</Window>
