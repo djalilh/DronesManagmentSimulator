@@ -162,7 +162,6 @@ namespace Client
                 }
             });
 
-            
         }
 
         private void Cordinator()
